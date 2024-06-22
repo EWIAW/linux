@@ -3,6 +3,39 @@
 #include<unistd.h>
 #include<sys/types.h>
 #include<sys/wait.h>
+#include<string.h>
+#define NUM 10
+void Task1()
+{
+    printf("running Task1\n");
+    return;
+}
+
+void Task2()
+{
+    printf("running Task2\n");
+    return;
+}
+
+void Task3()
+{
+    printf("running Task3\n");
+    return;
+}
+
+typedef void(*pfun)();//重定义函数指针
+
+
+pfun arr[NUM];
+
+void LoadTask()//加载任务到函数指针数组中，以便给父进程执行
+{
+    memset(arr,0,sizeof(arr));
+    arr[0]=Task1;
+    arr[1]=Task2;
+    arr[2]=Task3;   
+}
+
 int main()
 {
     pid_t id = fork();
@@ -44,13 +77,20 @@ int main()
     //下面代码写的是非阻塞等待
     //说明是父进程
     
+    LoadTask();//导入任务
+
     int status=0;
     while(1)
     {
         pid_t ret =  waitpid(id,&status,WNOHANG);//非阻塞等待
         if(ret==0)//父进程等待成功，子进程没有退出
         {
+            //在子进程没有退出期间，父进程可以执行其他任务；
             printf("wait done, but child running......\n");
+            for(int i=0;arr[i]!=NULL;i++)
+            {
+                arr[i]();
+            }
         }
         else if(ret>0)//父进程等待成功，子进程退出
         {
