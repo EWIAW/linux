@@ -4,22 +4,42 @@
 #include<sys/stat.h>
 #include<fcntl.h>
 #include<unistd.h>
+#include<assert.h>
 
-#define FILE_NAME(NUM) "log.txt"#NUM
+#define FILE_NAME "log.txt"
 
 int main()
 {
-    int fd1 = open(FILE_NAME(1), O_WRONLY | O_CREAT, 0666);//打开文件,0666指创建的文件默认权限为666
-    int fd2 = open(FILE_NAME(2), O_WRONLY | O_CREAT, 0666);//打开文件,0666指创建的文件默认权限为666
-    int fd3 = open(FILE_NAME(3), O_WRONLY | O_CREAT, 0666);//打开文件,0666指创建的文件默认权限为666
-    int fd4 = open(FILE_NAME(4), O_WRONLY | O_CREAT, 0666);//打开文件,0666指创建的文件默认权限为666
-    int fd5 = open(FILE_NAME(5), O_WRONLY | O_CREAT, 0666);//打开文件,0666指创建的文件默认权限为666
+    close(1);//把stdout关掉
 
-    printf("%d\n",fd1);
-    printf("%d\n",fd2);
-    printf("%d\n",fd3);
-    printf("%d\n",fd4);
-    printf("%d\n",fd5);
+    int fd = open(FILE_NAME,O_WRONLY | O_CREAT | O_TRUNC,0666);//以写的形式打开文件，并且每次打开文件时都清空内容
+    assert(fd != -1);
+
+    printf("fd:%d\n",fd);
+
+    fflush(stdout);
+
+    close(fd);
+
+    //close(0);//在打开文件之前，把stdin文件关闭掉
+
+    //int fd = open(FILE_NAME,O_RDONLY);//已读的形式打开文件
+    //assert(fd != -1);
+
+    //printf("fd:%d\n",fd);
+
+    //close(fd);
+    //int fd1 = open(FILE_NAME(1), O_WRONLY | O_CREAT, 0666);//打开文件,0666指创建的文件默认权限为666
+    //int fd2 = open(FILE_NAME(2), O_WRONLY | O_CREAT, 0666);//打开文件,0666指创建的文件默认权限为666
+    //int fd3 = open(FILE_NAME(3), O_WRONLY | O_CREAT, 0666);//打开文件,0666指创建的文件默认权限为666
+    //int fd4 = open(FILE_NAME(4), O_WRONLY | O_CREAT, 0666);//打开文件,0666指创建的文件默认权限为666
+    //int fd5 = open(FILE_NAME(5), O_WRONLY | O_CREAT, 0666);//打开文件,0666指创建的文件默认权限为666
+
+    //printf("%d\n",fd1);
+    //printf("%d\n",fd2);
+    //printf("%d\n",fd3);
+    //printf("%d\n",fd4);
+    //printf("%d\n",fd5);
 
     //char arr[100];
     //read(fd,arr,sizeof(arr)-1);
