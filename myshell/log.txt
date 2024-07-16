@@ -1,0 +1,11 @@
+log.txt
+Makefile
+myshell
+myshell.c
+shell.c
+total 36
+-rw-rw-r-- 1 zrb zrb    43 Jul 16 17:18 log.txt
+-rw-rw-r-- 1 zrb zrb    89 Jul 11 21:31 Makefile
+-rwxrwxr-x 1 zrb zrb 13424 Jul 16 17:18 myshell
+-rw-rw-r-- 1 zrb zrb  4673 Jul 16 18:10 myshell.c
+-rw-rw-r-- 1 zrb zrb  1823 Jul 12 14:28 shell.c
