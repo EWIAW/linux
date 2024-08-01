@@ -10,16 +10,40 @@
 
 int main()
 {
-    close(1);//把stdout关掉
+    printf("printf :hello linux\n");
+    fprintf(stdout,"fprintf:hello linux\n");
+    fputs("fputs  :hello linux\n",stdout);
 
-    int fd = open(FILE_NAME,O_WRONLY | O_CREAT | O_TRUNC,0666);//以写的形式打开文件，并且每次打开文件时都清空内容
-    assert(fd != -1);
+    const char arr[100] = "write  :hello linux\n";
+    write(1,arr,strlen(arr));
 
-    printf("fd:%d\n",fd);
+    fork();
 
-    fflush(stdout);
+    //int fd = open(FILE_NAME,O_WRONLY | O_CREAT | O_TRUNC,0666);
+    //assert(fd != -1);
+    //dup2(fd,1);//将文件log.txt的文件描述符拷贝给1号文件描述符
 
-    close(fd);
+    //printf("hello linux\n");
+
+    //close(fd);//关闭文件
+
+    //close(0);
+    //int fd = open(FILE_NAME,O_RDONLY);
+    //assert(fd != -1);
+
+    //char arr[100];
+    //scanf("%s",&arr);
+    //puts(arr);
+   // close(1);//把stdout关掉
+
+   // int fd = open(FILE_NAME,O_WRONLY | O_CREAT | O_TRUNC,0666);//以写的形式打开文件，并且每次打开文件时都清空内容
+   // assert(fd != -1);
+
+   // printf("fd:%d\n",fd);
+
+   // fflush(stdout);
+
+   // close(fd);
 
     //close(0);//在打开文件之前，把stdin文件关闭掉
 

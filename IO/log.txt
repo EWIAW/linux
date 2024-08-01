@@ -1,1 +1,7 @@
-fd:1
+write  :hello linux
+printf :hello linux
+fprintf:hello linux
+fputs  :hello linux
+printf :hello linux
+fprintf:hello linux
+fputs  :hello linux
