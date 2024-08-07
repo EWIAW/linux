@@ -12,6 +12,7 @@ int main()
     {
         cout<<"hello linux: "<<getpid()<<endl;
         sleep(1);
+        // kill(getpid(),9);
         // raise(9);
     }
     return 0;
