@@ -2,7 +2,7 @@
 all:mysignal test
 
 mysignal:mysignal.cc
-	g++ $^ -o $@ -std=c++11
+	g++ $^ -o $@ -std=c++11 -g
 
 test:test.cc
 	g++ $^ -o $@ -std=c++11
