@@ -1,12 +1,12 @@
-#include <iostream>
+// #include <iostream>
 
-#include <sys/types.h>
-#include <unistd.h>
-#include <signal.h>
+// #include <sys/types.h>
+// #include <unistd.h>
+// #include <signal.h>
 
-using namespace std;
+// using namespace std;
 
-#define SIGNAL 2
+// #define SIGNAL 2
 
 // void state()
 // {
@@ -18,42 +18,42 @@ using namespace std;
 //    cout<<"我捕捉了"<<sign<<"号信号"<<endl;
 //}
 
-void ShowPending(sigset_t& pending)
-{
-    for(int i = 31; i>0; i--)
-    {
-        if(sigismember(&pending,i))
-        {
-            cout<<"1";
-        }
-        else
-        {
-            cout<<"0";
-        }
-    }
-    cout<<endl;
-}
+// void ShowPending(sigset_t& pending)
+// {
+//     for(int i = 31; i>0; i--)
+//     {
+//         if(sigismember(&pending,i))
+//         {
+//             cout<<"1";
+//         }
+//         else
+//         {
+//             cout<<"0";
+//         }
+//     }
+//     cout<<endl;
+// }
 
 // ./mysignal -9 pid
-int main(int argc,char* argv[])
-{
-    sigset_t block,oblock,pending;
+// int main(int argc,char* argv[])
+// {
+//     sigset_t block,oblock,pending;
     
-    sigemptyset(&block);
-    sigemptyset(&oblock);
-    sigemptyset(&pending);
+//     sigemptyset(&block);
+//     sigemptyset(&oblock);
+//     sigemptyset(&pending);
 
-    sigaddset(&block,SIGNAL);
+//     sigaddset(&block,SIGNAL);
 
-    sigprocmask(SIG_SETMASK,&block,&oblock);
+//     sigprocmask(SIG_SETMASK,&block,&oblock);
 
-    while(true)
-    {
-        sigemptyset(&pending);
-        sigpending(&pending);
-        ShowPending(pending);
-        sleep(1);
-    }
+//     while(true)
+//     {
+//         sigemptyset(&pending);
+//         sigpending(&pending);
+//         ShowPending(pending);
+//         sleep(1);
+//     }
 
     //int a = 100;
     //int b = 0;
@@ -100,5 +100,76 @@ int main(int argc,char* argv[])
     //     // raise(9);
     //     abort();
     // }
+//     return 0;
+// }
+#include <iostream>
+#include <signal.h>
+#include <unistd.h>
+#include <stdio.h>
+
+using namespace std;
+
+#define SIG 2
+
+void Count()
+{
+    int cnt = 10;
+    while(cnt--)
+    {
+        printf("%d\r",cnt);
+        fflush(stdout);
+        sleep(1);
+    }
+}
+
+void handler(int sig)
+{
+    cout<<"我捕捉了"<<sig<<"信号"<<endl;
+    Count();
+}
+
+int main()
+{
+    sigset_t block;
+    sigemptyset(&block);
+    sigaddset(&block,3);
+    struct sigaction act,oldact;
+    act.sa_handler = &handler;
+    act.sa_flags = 0;
+    act.sa_mask = block;
+    // sigemptyset(&act.sa_mask);
+    sigaction(SIG,&act,&oldact);
+
+    while(true)
+    {
+        sleep(1);
+    }
     return 0;
 }
+
+// #include <iostream>
+// #include <unistd.h>
+// #include <signal.h>
+
+// using namespace std;
+
+// int quit = 0;
+
+// void handler(int sigo)
+// {
+//     cout<<"我已经捕捉"<<sigo<<"号信号"<<endl;
+//     printf("%d",quit);
+//     quit = 1;
+//     printf("->%d\n",quit);
+// }
+
+// int main()
+// {
+//     signal(2,handler);
+//     while(!quit)
+//     {
+//         sleep(1);
+//     }
+//     printf("正常退出\n");
+//     return 0;
+// }
