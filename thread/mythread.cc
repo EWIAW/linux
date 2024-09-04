@@ -93,6 +93,7 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include <pthread.h>
 #include <unistd.h>
@@ -170,6 +171,9 @@ void test1()
     }
 }
 
+// pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
+
 void* run_routine(void* args)
 {
     int cnt = 5;
@@ -184,27 +188,77 @@ void* get_ticket(void* args)
 {
     while(true)
     {
+        // pthread_mutex_lock(&lock);
         if (ticket > 0)
         {
             usleep(1000);
             std::cout << (char *)args << ":正在抢票:" << ticket-- << std::endl;
+            // pthread_mutex_unlock(&lock);
         }
         else
         {
+            // pthread_mutex_unlock(&lock);
             break;
         }
+        usleep(1000);
     }
 }
 
+//线程锁
+class ThreadLock
+{
+public:
+    //构造函数
+    ThreadLock(const std::string& threadname)
+    :_threadname(threadname)
+    ,_threadlock(nullptr)
+    {
+        //什么都不做
+    }
+
+    //析构函数
+    ~ThreadLock()
+    {
+        //什么都不做
+    }
+
+private:
+    std::string _threadname;//线程名
+    pthread_mutex_t* _threadlock;//线程锁
+};
+
+
 int main()
 {
-    Thread t1(get_ticket,(void*)"user1",1);
-    Thread t2(get_ticket,(void*)"user2",2);
-    Thread t3(get_ticket,(void*)"user3",3);
+#define NUM 4
+    pthread_mutex_t lock;
+    pthread_mutex_init(&lock,nullptr);
 
-    t1.join();
-    t2.join();
-    t3.join();
+    // Thread t1(get_ticket,(void*)"user1",1);
+    // Thread t2(get_ticket,(void*)"user2",2);
+    // Thread t3(get_ticket,(void*)"user3",3);
+    // Thread t4(get_ticket,(void*)"user4",4);
+
+    // t1.join();
+    // t2.join();
+    // t3.join();
+    // t4.join();
+
+    std::vector<ThreadLock*> vt;
+    std::vector<pthread_t> pt(NUM);
+
+    const int n = 4;//线程个数
+    for(int i = 0; i < n; i++)
+    {
+        char namebuffer[64];//存储线程名
+        snprintf(namebuffer,sizeof(namebuffer),"thread:%d",i+1);
+
+        ThreadLock* tmp = new ThreadLock(namebuffer);
+        
+        
+    }
+
+    // pthread_mutex_destroy(&lock);
 
     return 0;
 }
