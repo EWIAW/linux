@@ -133,14 +133,26 @@ int main()
     tbq->_s = new BlockQueue<TaskSave>(5);
 
     // BlockQueue<TaskCal> *bq = new BlockQueue<TaskCal>(5);
-    pthread_t ptid, pctid, ctid;
+    pthread_t ptid[3], pctid[3], ctid;
 
-    pthread_create(&ptid, nullptr, produce, (void *)tbq);
-    pthread_create(&ctid, nullptr, consume, (void *)tbq);
+    pthread_create(&ptid[0], nullptr, produce, (void *)tbq);
+    pthread_create(&ptid[1], nullptr, produce, (void *)tbq);
+    pthread_create(&ptid[2], nullptr, produce, (void *)tbq);
+
+    pthread_create(&pctid[0], nullptr, consume, (void *)tbq);
+    pthread_create(&pctid[1], nullptr, consume, (void *)tbq);
+    pthread_create(&pctid[2], nullptr, consume, (void *)tbq);
+
     pthread_create(&ctid, nullptr, save, (void *)tbq);
 
-    pthread_join(ptid, nullptr);
-    pthread_join(pctid, nullptr);
+    pthread_join(ptid[0], nullptr);
+    pthread_join(ptid[1], nullptr);
+    pthread_join(ptid[2], nullptr);
+
+    pthread_join(pctid[0], nullptr);
+    pthread_join(pctid[1], nullptr);
+    pthread_join(pctid[2], nullptr);
+
     pthread_join(ctid, nullptr);
 
     delete tbq->_c;
