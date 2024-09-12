@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "Thread.hpp"
+#include "ThreadPool.hpp"
 
 void *test(void *args)
 {
@@ -15,11 +16,13 @@ void *test(void *args)
 
 int main()
 {
-    Thread t1;
+    ThreadPool<int> tp(10);
+    tp.run();
 
-    t1.start(test);
-
-    t1.join();
+    while(true)
+    {
+        ;
+    }
 
     return 0;
 }
