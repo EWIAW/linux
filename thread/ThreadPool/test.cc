@@ -4,24 +4,29 @@
 
 #include "Thread.hpp"
 #include "ThreadPool.hpp"
-
-void *test(void *args)
-{
-    while(true)
-    {
-        std::cout<<"hello linux"<<std::endl;
-        sleep(1);
-    }
-}
+#include "task.hpp"
 
 int main()
 {
-    ThreadPool<int> tp(10);
+    ThreadPool<TaskCal> tp(10);
     tp.run();
 
-    while(true)
+    int x, y;
+    char op;
+
+    while (true)
     {
-        ;
+        std::cout << "请输入数据1：";
+        std::cin >> x;
+        std::cout << "请输入数据2：";
+        std::cin >> y;
+        std::cout << "请输入运算符：";
+        std::cin >> op;
+
+        TaskCal task(x,y,op);
+        std::cout<<task.ToTaskString()<<std::endl;
+        tp.push(task);
+        sleep(1);
     }
 
     return 0;

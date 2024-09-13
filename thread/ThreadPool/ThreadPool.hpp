@@ -31,6 +31,24 @@ public:
     // 往任务队列里插入任务
     void push(const T &in)
     {
+        // pthread_mutex_lock(&_mutex);
+        // _taskQueue.push(in);
+        // pthread_cond_signal(&_cond);
+        // pthread_mutex_unlock(&_mutex);
+        {
+            LockGuard lock(&_mutex);
+            _taskQueue.push(in);
+            pthread_cond_signal(&_cond);
+        }
+    }
+
+    // 从队列中拿任务
+    // 在pop函数中，不需要再加锁，因为在调用HandlerTask方法时，在里面已经加锁了
+    T pop()
+    {
+        T t = _taskQueue.front();
+        _taskQueue.pop();
+        return t;
     }
 
     // 让所有线程跑起来
@@ -44,18 +62,18 @@ public:
 
     static void *HandlerTask(void *args)
     {
-        ThreadPool<T>* threadpool = (ThreadPool<T>*)args;
+        ThreadPool<T> *threadpool = (ThreadPool<T> *)args;
         while (true)
         {
             pthread_mutex_lock(&threadpool->_mutex);
 
-            while(threadpool->_taskQueue.empty())
+            while (threadpool->_taskQueue.empty())
             {
-                pthread_cond_wait(&threadpool->_cond,&threadpool->_mutex);
+                pthread_cond_wait(&threadpool->_cond, &threadpool->_mutex);
             }
             T task = threadpool->pop();
             pthread_mutex_unlock(&threadpool->_mutex);
-            // task();//执行任务
+            task(); // 执行任务
         }
         return nullptr;
     }
