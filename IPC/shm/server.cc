@@ -15,6 +15,9 @@ int main()
     {
         printf("client say: ");
         printf("%s\n",start);
+        struct shmid_ds ds;
+        shmctl(id,IPC_STAT,&ds);
+        printf("共享内存的大小：%d,最后一次连接时间：%d，key值：%d",ds.shm_segsz,ds.shm_atime,ds.shm_perm.__key);
         sleep(1);
     }
 

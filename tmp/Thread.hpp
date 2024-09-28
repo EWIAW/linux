@@ -13,6 +13,7 @@ class Thread
 {
     const int size = 1024;
     typedef void *(*func_t)(void *);
+
 public:
     // 构造函数时，给线程创建一个名字
     Thread()
