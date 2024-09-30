@@ -1,3 +1,4 @@
+#pragma once
 #include <cstring>
 
 #include <iostream>
@@ -10,7 +11,8 @@
 
 using namespace std;
 
-const string DefaultIp = "0.0.0.0"; // 默认ip地址
+static const string DefaultIp = "0.0.0.0"; // 默认ip地址
+static const int buffersize = 1024;        // 缓冲区的大小
 
 // 枚举进程退出码
 enum
@@ -41,13 +43,13 @@ public:
         cout << "socket success:" << _sockfd << endl;
         // 2.bing套接字
         struct sockaddr_in local;
-        bzero(&local, sizeof(local));
-        // local.sin_addr.s_addr = inet_addr(_ip.c_str());
-        local.sin_addr.s_addr = htonl(INADDR_ANY);
-        local.sin_family = AF_INET;
-        local.sin_port = _port;
+        bzero(&local, sizeof(local));                   // 对local变量全部置0
+        local.sin_addr.s_addr = inet_addr(_ip.c_str()); // 指定其他client只能往这个ip发送信息
+        local.sin_addr.s_addr = htonl(INADDR_ANY);      // 指定其他client能往这个服务端上的任何ip发送信息，服务器的真实写法
+        local.sin_family = AF_INET;                     // 说明是网络通信
+        local.sin_port = htons(_port);                  // 输入端口号
 
-        int ret = bind(_sockfd, (struct sockaddr *)&local, sizeof(local));
+        int ret = bind(_sockfd, (struct sockaddr *)&local, sizeof(local)); // 绑定套接字
         if (ret == -1)
         {
             cerr << "socket bind:" << errno << ":" << strerror(errno) << endl;
@@ -58,8 +60,20 @@ public:
     // 服务端启动
     void start()
     {
+        char buffer[buffersize];
         for (;;)
         {
+            struct sockaddr_in peer;
+            socklen_t len = sizeof(peer);
+            ssize_t s = recvfrom(_sockfd, buffer, sizeof(buffer) - 1, 0, (struct sockaddr *)&peer, &len);
+            if (s > 0)
+            {
+                buffer[s] = 0;
+                string clientip = inet_ntoa(peer.sin_addr);
+                uint16_t clientport = ntohs(peer.sin_port);
+                string message = buffer;
+                cout << clientip << "[" << clientport << "]" << message << endl;
+            }
         }
     }
 
