@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <functional>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -10,6 +11,8 @@
 #include <arpa/inet.h>
 
 using namespace std;
+
+typedef function<void(int, string, uint16_t, string)> func;
 
 static const string DefaultIp = "0.0.0.0"; // 默认ip地址
 static const int buffersize = 1024;        // 缓冲区的大小
@@ -19,14 +22,15 @@ enum
 {
     SOCKET_ERR = 1,
     BIND_ERR,
+    OPEN_ERR,
 };
 
 // 编写udp服务端
 class UdpServer
 {
 public:
-    UdpServer(const uint16_t &port, const string &ip = DefaultIp)
-        : _ip(ip), _port(port)
+    UdpServer(const func &callback, const uint16_t &port, const string &ip = DefaultIp)
+        : _callback(callback), _sockfd(-1), _ip(ip), _port(port)
     {
     }
 
@@ -55,6 +59,7 @@ public:
             cerr << "socket bind:" << errno << ":" << strerror(errno) << endl;
             exit(BIND_ERR);
         }
+        // UDP预备工作完成
     }
 
     // 服务端启动
@@ -63,9 +68,10 @@ public:
         char buffer[buffersize];
         for (;;)
         {
-            struct sockaddr_in peer;
+            // 1.接收客户端传来的信息
+            struct sockaddr_in peer; // 用来存储客户端的信息ip和port
             socklen_t len = sizeof(peer);
-            ssize_t s = recvfrom(_sockfd, buffer, sizeof(buffer) - 1, 0, (struct sockaddr *)&peer, &len);
+            ssize_t s = recvfrom(_sockfd, buffer, sizeof(buffer) - 1, 0, (struct sockaddr *)&peer, &len); // 接受客户端的消息
             if (s > 0)
             {
                 buffer[s] = 0;
@@ -73,6 +79,9 @@ public:
                 uint16_t clientport = ntohs(peer.sin_port);
                 string message = buffer;
                 cout << clientip << "[" << clientport << "]" << message << endl;
+
+                // 2.处理客户端传过来的信息
+                _callback(_sockfd, clientip, clientport, message);
             }
         }
     }
@@ -85,4 +94,5 @@ private:
     int _sockfd;    // 创建一个套接字后，会返回一个文件描述符
     string _ip;     // 服务端的ip地址
     uint16_t _port; // 服务端的端口号
+    func _callback; // 回调方法，用来接收客户端的信息后进行处理
 };
