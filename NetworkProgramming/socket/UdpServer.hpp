@@ -23,6 +23,8 @@ enum
     SOCKET_ERR = 1,
     BIND_ERR,
     OPEN_ERR,
+    POPEN_ERR,
+    PCLOSE_ERR,
 };
 
 // 编写udp服务端
@@ -74,10 +76,10 @@ public:
             ssize_t s = recvfrom(_sockfd, buffer, sizeof(buffer) - 1, 0, (struct sockaddr *)&peer, &len); // 接受客户端的消息
             if (s > 0)
             {
-                buffer[s] = 0;
-                string clientip = inet_ntoa(peer.sin_addr);
-                uint16_t clientport = ntohs(peer.sin_port);
-                string message = buffer;
+                buffer[s] = 0;                              // 因为接收数据是以C语言字符串的形式接收，所以要将末尾添加/0
+                string clientip = inet_ntoa(peer.sin_addr); // 获取客户端ip
+                uint16_t clientport = ntohs(peer.sin_port); // 获取客户端port
+                string message = buffer;                    // 获取客户端传来的信息
                 cout << clientip << "[" << clientport << "]" << message << endl;
 
                 // 2.处理客户端传过来的信息
