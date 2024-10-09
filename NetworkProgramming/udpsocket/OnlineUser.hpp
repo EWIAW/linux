@@ -92,7 +92,7 @@ public:
         }
     }
 
-    // 消息路由，消息路由时，也要给服务端发送一份
+    // 消息路由
     void SendAll(const int &sockfd, const string &ip, const uint16_t &port, const string &message) // 这里的ip和port为发出消息的客户端
     {
         // 进行消息路由前，先封装一下要发送的信息，即在信息前面带上ip和port
@@ -113,8 +113,6 @@ public:
             }
             it++;
         }
-
-        // 消息路由给服务端
     }
 
     ~OnlineUser()
