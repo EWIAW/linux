@@ -8,9 +8,10 @@ using namespace std;
 #define NORMAL 1
 #define WARRING 2
 #define ERROR 3
-#define FATAL 4
+#define FATAL 4 // 致命错误
 
+// 日志函数
 void logmessage(int level, string message)
 {
-    cout << level << message << endl;
+    cout << message << endl;
 }
