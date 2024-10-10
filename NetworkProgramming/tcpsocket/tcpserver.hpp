@@ -20,7 +20,7 @@ static const int buffernum = 1024;
 // 枚举错误类型
 enum
 {
-    SOCEER_ERR = 1, // 创建socket失败
+    SOCKET_ERR = 1, // 创建socket失败
     BIND_ERR,       // 绑定socket失败
     LISTEN_ERR,     // 监听失败
 };
@@ -40,7 +40,7 @@ public:
         if (_listenSockfd == -1)
         {
             logmessage(FATAL, "create socket error");
-            exit(SOCEER_ERR);
+            exit(SOCKET_ERR);
         }
         logmessage(NORMAL, "create socket success");
 
@@ -112,6 +112,9 @@ private:
                 break; // 走到这说明客户端已经关闭了
             }
             cout << "[服务器收到的信息]：" << buffer << endl;
+
+            // 服务器收到信息后，再把信息发送回去
+            n = write(sockfd, buffer, strlen(buffer));
         }
     }
 
