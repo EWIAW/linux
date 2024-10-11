@@ -1,18 +1,19 @@
 // 对原生线程库的线程函数进行封装
-
 #pragma once
 
 #include <cstdio>
 #include <cassert>
 
 #include <string>
+#include <functional>
 
 #include <pthread.h>
 
 class Thread
 {
     const int size = 1024;
-    typedef void *(*func_t)(void *);
+    typedef std::function<void *(void *)> func_t;
+
 public:
     // 构造函数时，给线程创建一个名字
     Thread()
@@ -27,14 +28,14 @@ public:
     {
         _func = func;
         _args = args;
-        int n = pthread_create(&tid, nullptr, _func, _args);
+        int n = pthread_create(&_tid, nullptr, start_routine, this);
         assert(n == 0);
     }
 
     // 线程退出
     void join()
     {
-        int n = pthread_join(tid, nullptr);
+        int n = pthread_join(_tid, nullptr);
         assert(n == 0);
     }
 
@@ -50,7 +51,20 @@ public:
     }
 
 private:
-    pthread_t tid;         // 线程id
+    static void *start_routine(void *args)
+    {
+        Thread *_this = (Thread *)args;
+        return _this->callback();
+    }
+
+    // 创建线程后，该线程需要调用的函数
+    void *callback()
+    {
+        return _func(_args);
+    }
+
+private:
+    pthread_t _tid;         // 线程id
     std::string _name;     // 线程名
     static int _threadnum; // 线程序号
     func_t _func;          // 线程需要执行的函数
