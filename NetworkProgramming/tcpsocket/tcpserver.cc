@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "tcpserver.hpp"
+#include "daemon.hpp"
 
 using namespace std;
 
@@ -25,6 +26,7 @@ int main(int argc, char *argv[])
     unique_ptr<tcpserver> utcp(new tcpserver(port));
 
     utcp->init();
+    daemonSelf(); // 让进程变成守护进程
     utcp->start();
 
     return 0;

@@ -43,7 +43,7 @@ public:
         // 2.bind套接字
         // 3.listen监听
         // 4.accept连接
-        // 以上操作client都不需要做
+        // 以上操作client都不需要做或者操作系统帮助我们做
     }
 
     void start()
@@ -74,7 +74,7 @@ public:
             if (n > 0)
             {
                 buffer[n] = 0;
-                cout << "server回显" << buffer << endl;
+                cout << "[server回显]" << buffer << endl;
             }
             else
             {
