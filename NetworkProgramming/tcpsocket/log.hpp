@@ -18,6 +18,9 @@ using namespace std;
 #define ERROR 3
 #define FATAL 4 // 致命错误
 
+#define LOG_NORMAL "log_normal.txt"
+#define LOG_ERROR "log_error.txt"
+
 // 将日志等级从数字转换为字符串
 const char *to_levelstr(const int &level)
 {
@@ -76,5 +79,21 @@ void logmessage(const int &level, const char *format, ...)
     vsnprintf(logmessage, sizeof(logmessage) - 1, format, args);
     va_end(args);
 
-    cout << logprev << logmessage << endl;
+    // cout << logprev << logmessage << endl;
+    // 将日志信息往文件里面写入
+    FILE *fp_normal = fopen(LOG_NORMAL, "a");
+    FILE *fp_error = fopen(LOG_ERROR, "a");
+    if (fp_normal != nullptr && fp_error != nullptr)
+    {
+        if (level == DEBUG || level == NORMAL || level == WARRING)
+        {
+            fprintf(fp_normal, "%s%s\n", logprev, logmessage);
+        }
+        else
+        {
+            fprintf(fp_error, "%s%s\n", logprev, logmessage);
+        }
+        fclose(fp_normal);
+        fclose(fp_error);
+    }
 }
