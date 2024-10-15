@@ -20,13 +20,13 @@ void Usage(string proc)
     cout << "Usage:" << proc << "local port" << endl;
 }
 
-void Cal(Request &req, Response &res)
+void Cal(const Request &req, Response &res)
 {
-    int result;
+    int result = -1;
     int exitcode;
-    char op = req.getOp();
-    int x = req.getX();
-    int y = req.getY();
+    int x = req._x;
+    int y = req._y;
+    char op = req._op;
     switch (op)
     {
     case '+':
@@ -48,6 +48,9 @@ void Cal(Request &req, Response &res)
         exitcode = 1;
         break;
     }
+    exitcode = 0;
+    res._exitcode = exitcode;
+    res._result = result;
 }
 
 // ./tcpserver 8080

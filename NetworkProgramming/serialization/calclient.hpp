@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include "log.hpp"
+#include "protocol.hpp"
 
 using namespace std;
 
@@ -62,24 +63,31 @@ public:
         logmessage(NORMAL, "connect server success");
 
         // 连接成功后，可以进行通信
-        string message;
+        string line;
+        string inbuffer;
         while (true)
         {
-            getline(cin, message);
-            ssize_t n = write(_sockfd, message.c_str(), message.size());
+            // 1.发送数据
+            getline(std::cin, line);
+            Request req(10, 10, '+'); // 构造请求
+            string content;
+            req.Serialization(content); // 将请求序列化
+            // 添加报头
+            string content_str = enLength(content);
 
-            // 回显
-            char buffer[buffernum];
-            n = read(_sockfd, buffer, sizeof(buffer) - 1);
-            if (n > 0)
-            {
-                buffer[n] = 0;
-                cout << "[server回显]" << buffer << endl;
-            }
-            else
-            {
-                break;
-            }
+            send(_sockfd, content_str.c_str(), content_str.size(), 0);
+
+            // 2.读取数据
+            string text;
+            readData(_sockfd, inbuffer, text);
+            // 去掉报头
+            string out;
+            deLength(text, out);
+
+            // 将out反序列化
+            Response res;
+            res.deSerialization(out);
+            cout << res._exitcode << ":" << res._result << endl;
         }
     }
 

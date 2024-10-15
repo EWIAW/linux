@@ -33,33 +33,37 @@ enum
 
 void HandlerEnter(const int &sockfd, const func_t func)
 {
+    // inbuffer给readData函数做缓冲区
     std::string inbuffer;
     while (true)
     {
-        std::string text;
-        std::string str;
+        std::string text; // text用来存放一条完整的请求，如：“content_len”/r/n“x op y”/r/n
+        std::string str;  // str用来存放去掉报头后的请求，如：“x op y”
         // 1.读取数据
-        bool ret = readData(sockfd, inbuffer, text);
+        bool ret = readData(sockfd, inbuffer, text); // 将网络中的完整的一条请求读到text中
         if (ret == false)
             return;
 
         // 走到这里，此时text中，是一个完整的报文数据    “content_len”/r/n“x op y”/r/n
-        deLength()
-
-            // 1.1读取数据读上来的是一个“字符串”
-            string buffer;
+        deLength(text, str); // 去掉报头
 
         // 2.将字符串反序列化
         Request req;
-        req.deSerialization(buffer);
+        req.deSerialization(str);
 
         // 3.处理任务
         Response res;
         func(req, res);
 
         // 4.将结构化数据序列化
+        std::string out;
+        res.Serialization(out);
 
-        // 5.写入数据
+        // 添加报头
+        std::string send_str = enLength(out);
+
+        // 5.发送数据
+        send(sockfd, send_str.c_str(), send_str.size(), 0);
     }
 }
 
@@ -119,7 +123,7 @@ public:
                 logmessage(ERROR, "accept socket error");
                 continue;
             }
-            logmessage(NORMAL, "accept socket success : sockfd:%d");
+            logmessage(NORMAL, "accept socket success : sockfd:%d", sockfd);
             // cout << "sock:" << sockfd << endl;
 
             pid_t pid = fork();

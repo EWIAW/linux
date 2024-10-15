@@ -42,12 +42,14 @@ bool deLength(const std::string &text, std::string &out)
 
 // 从sockfd中读取数据
 // “content_len”/r/n“x op y”/r/n
+// 将读取到的字节流先放到inbuffer缓冲中，再将完整的一条请求放到text中
 bool readData(const int &sockfd, std::string &inbuffer, std::string &text)
 {
     char buffer[1024];
     while (true)
     {
         ssize_t n = recv(sockfd, buffer, sizeof(buffer) - 1, 0);
+        // cout << buffer << endl;
         if (n > 0)
         {
             buffer[n] = 0;
@@ -66,7 +68,7 @@ bool readData(const int &sockfd, std::string &inbuffer, std::string &text)
             }
 
             // 走到这里，说明至少有一个完整的数据报
-            text.substr(0, total_len);
+            text = inbuffer.substr(0, total_len);
             inbuffer.erase(0, total_len);
             break;
         }
@@ -87,6 +89,12 @@ public:
         : _x(0), _y(0), _op(0)
     {
     }
+
+    Request(const int &x, const int &y, const char &op)
+        : _x(x), _y(y), _op(op)
+    {
+    }
+
     ~Request() {}
 
     // 序列化 将结构化数据转换为字符串
