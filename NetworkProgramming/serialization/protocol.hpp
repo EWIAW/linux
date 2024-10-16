@@ -4,6 +4,8 @@
 
 #include <string>
 
+#include <jsoncpp/json/json.h>
+
 #define SEP " "
 #define SEP_LEN strlen(SEP)
 
@@ -100,6 +102,7 @@ public:
     // 序列化 将结构化数据转换为字符串
     bool Serialization(std::string &out)
     {
+#ifdef MYSELF
         out.clear();
         // 结构化 “x op y”
         std::string x_string = std::to_string(_x);
@@ -109,12 +112,22 @@ public:
         out += _op;
         out += SEP;
         out += y_string;
+#else
+        Json::Value root;
+        root["first"] = _x;
+        root["second"] = _y;
+        root["operator"] = _op;
+
+        Json::FastWriter writer;
+        out = writer.write(root);
+#endif
         return true;
     }
 
     // 反序列化 将字符串转换为结构化数据
     bool deSerialization(const std::string &in)
     {
+#ifdef MYSELF
         // 将“x op y” 反序列化
         size_t left = in.find(SEP);
         size_t right = in.rfind(SEP);
@@ -139,7 +152,15 @@ public:
         _x = std::stoi(x_string);
         _y = std::stoi(y_string);
         _op = op;
+#else
+        Json::Value root;
+        Json::Reader reader;
+        reader.parse(in, root);
 
+        _x = root["first"].asInt();
+        _y = root["second"].asInt();
+        _op = root["operator"].asInt();
+#endif
         return true;
     }
 
@@ -163,6 +184,7 @@ public:
     // 序列化 将结构化数据转换为字符串
     bool Serialization(std::string &out)
     {
+#ifdef MYSELF
         //"0 100"
         out.clear();
         std::string ec_string = std::to_string(_exitcode);
@@ -170,12 +192,20 @@ public:
         out += ec_string;
         out += SEP;
         out += rs_string;
+#else
+        Json::Value root;
+        root["exitcode"] = _exitcode;
+        root["result"] = _result;
+        Json::FastWriter writer;
+        out = writer.write(root);
+#endif
         return true;
     }
 
     // 反序列化 将字符串转换为结构化数据
     bool deSerialization(const std::string &in)
     {
+#ifdef MYSELF
         // 将“0 100”反序列化
         ssize_t mid = in.find(SEP);
         if (mid == std::string::npos)
@@ -186,6 +216,13 @@ public:
 
         _exitcode = exitcode;
         _result = result;
+#else
+        Json::Value root;
+        Json::Reader reader;
+        reader.parse(in, root);
+        _exitcode = root["exitcode"].asInt();
+        _result = root["result"].asInt();
+#endif
         return true;
     }
 

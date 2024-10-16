@@ -31,7 +31,7 @@ enum
     LISTEN_ERR,     // 监听失败
 };
 
-void HandlerEnter(const int &sockfd, const func_t func)
+void HandlerEnter(const int &sockfd, const func_t func) 
 {
     // inbuffer给readData函数做缓冲区
     std::string inbuffer;

@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <cctype>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -69,7 +70,8 @@ public:
         {
             // 1.发送数据
             getline(std::cin, line);
-            Request req(10, 10, '+'); // 构造请求
+            Request req = Parseline(line); // 解析输入的字符串
+
             string content;
             req.Serialization(content); // 将请求序列化
             // 添加报头
@@ -97,6 +99,42 @@ public:
         {
             close(_sockfd);
         }
+    }
+
+private:
+    // 解析字符串并返回一个请求
+    // "123*456"
+    Request Parseline(const string &line)
+    {
+        string left, right;
+        int n = 0;
+        char op;
+
+        // 定义一个flag来帮助我们判断是否左操作数、右操作数或者运算符
+        int flag = 0; // 如果为0，左操作数，为1，右操作数，为2，运算符
+
+        while (n < line.size())
+        {
+            switch (flag)
+            {
+            case 0:
+                left += line[n++];
+                if (!isdigit(line[n]))
+                    flag = 2;
+                break;
+            case 1:
+                right += line[n++];
+                break;
+            case 2:
+                op = line[n++];
+                flag = 1;
+                break;
+            default:
+                break;
+            }
+        }
+        Request ret(stoi(left), stoi(right), op);
+        return ret;
     }
 
 private:

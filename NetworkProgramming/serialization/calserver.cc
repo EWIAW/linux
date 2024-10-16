@@ -10,9 +10,9 @@ using namespace std;
 enum
 {
     OK = 0,
-    DIV_ZERO,
-    MOD_ZERO,
-    OP_ERROR
+    DIV_ZERO, // 除0
+    MOD_ZERO, // 取模0
+    OP_ERROR  // 运算符错误
 };
 
 void Usage(string proc)
@@ -23,7 +23,7 @@ void Usage(string proc)
 void Cal(const Request &req, Response &res)
 {
     int result = -1;
-    int exitcode;
+    int exitcode = OK;
     int x = req._x;
     int y = req._y;
     char op = req._op;
@@ -39,16 +39,21 @@ void Cal(const Request &req, Response &res)
         result = x * y;
         break;
     case '/':
-        result = x / y;
+        if (y == 0)
+            exitcode = DIV_ZERO;
+        else
+            result = x / y;
         break;
     case '%':
-        result = x % y;
+        if (y == 0)
+            exitcode = MOD_ZERO;
+        else
+            result = x % y;
         break;
     default:
-        exitcode = 1;
+        exitcode = OP_ERROR;
         break;
     }
-    exitcode = 0;
     res._exitcode = exitcode;
     res._result = result;
 }
