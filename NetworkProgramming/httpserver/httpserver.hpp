@@ -17,8 +17,8 @@
 
 typedef std::function<void(const HttpRequest &request, HttpResponse &response)> func_t;
 
-static const int gbacklog = 5; // 给listen监听函数使用
-static const int buffernum = 1024;
+static const int gbacklog = 5;     // 给listen监听函数使用
+static const int buffernum = 4096; // 缓冲区大小
 
 // 枚举exit退出码
 enum
@@ -32,7 +32,7 @@ void HandlerEnter(const int &sockfd, const func_t func)
 {
     while (true)
     {
-        char buffer[4096];
+        char buffer[buffernum];
         HttpRequest request;
         HttpResponse respone;
         // 1.读取请求
@@ -41,14 +41,19 @@ void HandlerEnter(const int &sockfd, const func_t func)
         {
             buffer[n] = 0;
             // 2.反序列化请求
-            request.inbuffer = buffer;
+            request._inbuffer = buffer;
+
+            std::cout << "---------------完整请求开始---------------" << std::endl;
+            std::cout << request._inbuffer << std::endl;
+            std::cout << "---------------完整请求结束---------------" << std::endl;
+
             // 3.处理请求并返回响应
-            request.parse();
+            request.parse(); // 解析请求
             func(request, respone);
             // 4.序列化响应
 
             // 5.发送响应
-            send(sockfd, respone.outbuffer.c_str(), respone.outbuffer.size(), 0);
+            send(sockfd, respone._outbuffer.c_str(), respone._outbuffer.size(), 0);
         }
     }
 }
@@ -58,6 +63,10 @@ class httpserver
 public:
     httpserver(const uint16_t &port, const func_t &func)
         : _listenSockfd(-1), _port(port), _func(func)
+    {
+    }
+
+    ~httpserver()
     {
     }
 
@@ -90,7 +99,7 @@ public:
         }
     }
 
-    void start(const func_t &func)
+    void start()
     {
         // 4.accept链接
         for (;;)
@@ -112,8 +121,7 @@ public:
                 if (pid == 0)
                 {
                     // 孙子进程
-                    // serviceIO(sockfd);
-                    HandlerEnter(sockfd, func);
+                    HandlerEnter(sockfd, _func);
                     close(sockfd);
                     exit(0);
                 }
@@ -123,10 +131,6 @@ public:
             pid_t ret = waitpid(pid, nullptr, 0);
             close(sockfd); // 关闭不再使用的文件描述符
         }
-    }
-
-    ~httpserver()
-    {
     }
 
 private:
