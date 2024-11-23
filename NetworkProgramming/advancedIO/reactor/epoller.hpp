@@ -46,7 +46,7 @@ public:
         int ret = epoll_ctl(_epfd, EPOLL_CTL_ADD, fd, &ee);
         if (ret == -1)
         {
-            Log_Message(WARN, "join the epoll model failed ! ! !");
+            Log_Message(WARN, "join the epoll model failed , errno : %d , reason : %s", errno, strerror(errno));
             close(fd);
             return;
         }
@@ -55,14 +55,57 @@ public:
     }
 
     // 将连接从epoll模型中删除
-    void Del()
+    void Del(int sock)
     {
+        int ret = epoll_ctl(_epfd, EPOLL_CTL_DEL, sock, nullptr);
+        if (ret == -1)
+        {
+            Log_Message(ERROR, "epoll_ctl to delete is failed , errno : %d , reason : %s", errno, strerror(errno));
+            return;
+        }
+        Log_Message(DUBUG, "epoll_ctl delete is success");
+        return;
     }
 
     // 监听等待文件描述符
-    void Wait()
+    int Wait(struct epoll_event *events, int maxnum, int timeout)
     {
-        // epoll_wait(_epfd, )
+        int ret = epoll_wait(_epfd, events, maxnum, timeout);
+        switch (ret)
+        {
+        case 0:
+            Log_Message(DUBUG, "time out...");
+            break;
+        case -1:
+            Log_Message(ERROR, "epoll_wait failed , errno : %d , reason : %s", errno, strerror(errno));
+            break;
+        default:
+            Log_Message(DUBUG, "events ready!!!");
+            break;
+        }
+        return ret;
+    }
+
+    // 控制事件
+    bool Control(int sock, int op, int event)
+    {
+        struct epoll_event ee;
+        ee.data.fd = sock;
+        ee.events = event;
+        int n = 0;
+        if (op == EPOLL_CTL_DEL)
+        {
+            n = epoll_ctl(_epfd, op, sock, nullptr);
+        }
+        if (op == EPOLL_CTL_MOD)
+        {
+            n = epoll_ctl(_epfd, op, sock, &ee);
+        }
+        else
+        {
+            n = -1;
+        }
+        return n == 0;
     }
 
 private:

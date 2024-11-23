@@ -4,7 +4,6 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -47,7 +46,7 @@ public:
     }
 
     // 2.绑定socket
-    void Bind(const uint16_t &port = default_port)
+    void Bind(const uint16_t port = default_port)
     {
         struct sockaddr_in local;
         memset(&local, 0, sizeof(local));
@@ -78,7 +77,7 @@ public:
     }
 
     // 接收新连接
-    int Accept(std::string *clientip, uint16_t *clientport)
+    int Accept(std::string *clientip, uint16_t *clientport, int *err)
     {
         struct sockaddr_in client;
         memset(&client, 0, sizeof(client));
@@ -87,6 +86,7 @@ public:
         if (fd < 0)
         {
             Log_Message(ERROR, "accept socket failed!!! , reason : %s", strerror(errno));
+            *err = errno; // 将错误信息带回
         }
         else
         {
