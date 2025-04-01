@@ -10,7 +10,7 @@
 #include "Thread.hpp"
 #include "LockGuard.hpp"
 
-//声明
+// 声明
 template <class T>
 class ThreadData;
 
@@ -36,6 +36,16 @@ template <class T>
 class ThreadPool
 {
     static const int ThreadNum = 5; // 线程池中线程的默认个数
+
+private:
+    int _num;                         // 线程池中线程的个数
+    std::vector<Thread *> _vecThread; // 存放线程的数组
+    std::queue<T> _taskQueue;         // 存放任务的队列
+    pthread_mutex_t _mutex;           // 锁
+    pthread_cond_t _cond;             // 条件变量
+
+    static std::mutex _cppmutex;
+    static ThreadPool<T> *_tp; // 单例静态指针
 
 public:
     static ThreadPool<T> *GetInstance()
@@ -134,16 +144,6 @@ private:
         delete td;
         return nullptr;
     }
-
-private:
-    int _num;                         // 线程池中线程的个数
-    std::vector<Thread *> _vecThread; // 存放线程的数组
-    std::queue<T> _taskQueue;         // 存放任务的队列
-    pthread_mutex_t _mutex;           // 锁
-    pthread_cond_t _cond;             // 条件变量
-
-    static std::mutex _cppmutex;
-    static ThreadPool<T> *_tp; // 单例静态指针
 };
 
 template <class T>

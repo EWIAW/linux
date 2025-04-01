@@ -14,6 +14,13 @@ class Thread
     const int size = 1024;
     typedef std::function<void *(void *)> func_t;
 
+private:
+    pthread_t _tid;        // 线程id
+    std::string _name;     // 线程名
+    static int _threadnum; // 线程序号
+    func_t _func;          // 线程需要执行的函数
+    void *_args;           // 线程传递的参数
+
 public:
     // 构造函数时，给线程创建一个名字
     Thread()
@@ -62,12 +69,5 @@ private:
     {
         return _func(_args);
     }
-
-private:
-    pthread_t _tid;         // 线程id
-    std::string _name;     // 线程名
-    static int _threadnum; // 线程序号
-    func_t _func;          // 线程需要执行的函数
-    void *_args;           // 线程传递的参数
 };
 int Thread::_threadnum = 0;

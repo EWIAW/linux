@@ -7,6 +7,13 @@
 template <class T>
 class BlockQueue
 {
+private:
+    std::queue<T> _queue;   // 队列
+    int _maxcap;            // 队列的最大容量
+    pthread_mutex_t _mutex; // 锁
+    pthread_cond_t _p_cond; // 生产者条件变量
+    pthread_cond_t _c_cond; // 消费者条件变量
+
 public:
     BlockQueue(const int maxcap)
         : _maxcap(maxcap)
@@ -33,7 +40,7 @@ public:
         _queue.push(in);
 
         // 3.走到这里，阻塞队列里面一定有东西，所以消费者进行消费
-        // 细节3：signal可以放在临界区外，也可以凡在临界区内
+        // 细节3：signal可以放在临界区外，也可以放在临界区内
         pthread_cond_signal(&_c_cond);
 
         pthread_mutex_unlock(&_mutex);
@@ -81,11 +88,4 @@ private:
         else
             return false;
     }
-
-private:
-    std::queue<T> _queue;   // 队列
-    int _maxcap;            // 队列的最大容量
-    pthread_mutex_t _mutex; // 锁
-    pthread_cond_t _p_cond; // 生产者条件变量
-    pthread_cond_t _c_cond; // 消费者条件变量
 };

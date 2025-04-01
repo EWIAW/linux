@@ -13,6 +13,16 @@ const int gcap = 5;
 template <class T>
 class RingQueue
 {
+private:
+    std::vector<T> _queue;   // 环形队列
+    int _capacity;           // 队列的最大容量
+    sem_t _spacesem;         // 生产者的信号量，空间资源信号量，即有多少个空位
+    sem_t _datasem;          // 消费者的信号量，数据资源信号量，即有多少个数据
+    int _spacepos;           // 队列空间资源的下标
+    int _datapos;            // 队列数据资源的下标
+    pthread_mutex_t _pmutex; // 生产者的锁
+    pthread_mutex_t _cmutex; // 消费者的锁
+
 public:
     RingQueue(const int &capacity = gcap)
         : _queue(capacity), _capacity(capacity), _spacepos(0), _datapos(0)
@@ -22,8 +32,8 @@ public:
         ret = sem_init(&_datasem, 0, 0); // 对于数据资源，刚开始信号量为0个
         assert(ret == 0);
 
-        pthread_mutex_init(&_pmutex,nullptr);
-        pthread_mutex_init(&_cmutex,nullptr);
+        pthread_mutex_init(&_pmutex, nullptr);
+        pthread_mutex_init(&_cmutex, nullptr);
     }
 
     void push(const T &in)
@@ -58,27 +68,17 @@ public:
     }
 
 private:
-    // P操作，对信号量进行--
+    // P操作，对信号量进行--，申请信号量
     void P(sem_t &sem)
     {
         int ret = sem_wait(&sem);
         assert(ret == 0);
     }
 
-    // V操作，对信号量进行++
+    // V操作，对信号量进行++，归还信号量
     void V(sem_t &sem)
     {
         int ret = sem_post(&sem);
         assert(ret == 0);
     }
-
-private:
-    std::vector<T> _queue; // 环形队列
-    int _capacity;         // 队列的最大容量
-    sem_t _spacesem;       // 生产者的信号量，空间资源信号量
-    sem_t _datasem;        // 消费者的信号量，数据资源信号量
-    int _spacepos;         // 队列空间资源的下标
-    int _datapos;          // 队列数据资源的下标
-    pthread_mutex_t _pmutex;       // 生产者的锁
-    pthread_mutex_t _cmutex;       // 消费者的锁
 };
